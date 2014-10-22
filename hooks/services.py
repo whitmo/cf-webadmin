@@ -5,18 +5,14 @@ from charmhelpers.core.services import helpers
 
 import actions
 
-def install_boilerplate(*args):
-    pass
-
 
 def manage():
     manager = ServiceManager([
         {
-            'service': 'cf-admin-ui',
+            'service': 'cf-webadmin',
             'ports': [],  # ports to after start
             'provided_data': [
-                # context managers for provided relations
-                # e.g.: helpers.HttpRelation()
+                helpers.HttpRelation()
             ],
             'required_data': [
                 # data (contexts) required to start the service
@@ -24,10 +20,10 @@ def manage():
                 #       helpers.MysqlRelation(),
             ],
             'data_ready': [
-                install_boilerplate,
+                actions.render_webadmin_config,
                 helpers.render_template(
                     source='upstart.conf',
-                    target='/etc/init.d/cf-admin-ui'),
+                    target='/etc/init.d/cf-webadmin'),
                 actions.log_start,
             ],
         },

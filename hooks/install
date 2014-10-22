@@ -4,9 +4,11 @@ import setup
 setup.pre_install()
 
 from charmhelpers.core import hookenv
+from charmhelpers.core.hookenv import log
 from charmhelpers import fetch
 from path import path
 import subprocess
+import logging
 
 pkgs = ['git-core',
         'build-essential',
@@ -15,14 +17,28 @@ pkgs = ['git-core',
         'openssl',
         'libpq-dev']
 
+here = path(__file__).parent.abspath()
 
-def shell(cmd, boilerplate=". ~/.profile"):
-    cmd = "%s && %s" % (boilerplate, cmd)
+
+logger = logging.getLogger(__name__)
+
+
+def shell(cmd, boilerplate=". /home/ubuntu/.boilerplate &&"):
+    cmd = "%s %s" % (boilerplate, cmd)
+    log(cmd)
     return subprocess.check_call(cmd, shell=True)
 
 
+def append_line_once(line, fp):
+    if not fp.exists():
+        fp.touch()
+
+    if line not in fp.lines():
+        fp.write_text(line + '\n', append=True)
+
+
 def install(pkgs=pkgs):
-    hookenv.log('Installing cf-admin-ui')
+    log('Installing cf-admin-ui')
     fetch.apt_install(fetch.filter_installed_packages(pkgs))
 
     home = path('~/').expanduser()
@@ -30,10 +46,9 @@ def install(pkgs=pkgs):
         shell('git clone https://github.com/sstephenson/rbenv.git ~/.rbenv', '')
         shell('git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build', '')
 
-    profile = home / '.profile'
-    if not profile.exists():
-        profile.append_text('export PATH="$HOME/.rbenv/bin:$PATH"')
-        profile.append_text('eval "$(rbenv init -)"')
+    boilerplate = home / '.boilerplate'
+    append_line_once('export PATH="$HOME/.rbenv/bin:$PATH"', boilerplate)
+    append_line_once('eval "$(rbenv init -)"', boilerplate)
 
     shell('rbenv install -s 1.9.3-p484')
     shell('rbenv global 1.9.3-p484')
@@ -44,11 +59,20 @@ def install(pkgs=pkgs):
     opt = path('/opt').mkdir_p()
 
     cmd = 'git clone https://github.com/cloudfoundry-incubator/admin-ui.git'
-    with opt:
-        shell(cmd)
+
+    repo = opt / 'admin-ui'
+
+    if repo.exists():
+        with repo:
+            shell('git pull --rebase')
+    else:
+        with opt:
+            shell(cmd)
 
     with opt / 'admin-ui':
-        shell('bundle install')
+        shell('chown ubuntu:ubuntu -R ./')
+        script = here / 'bundle.sh'
+        shell('sudo -u ubuntu -s %s' % script, '')
 
 
 if __name__ == "__main__":

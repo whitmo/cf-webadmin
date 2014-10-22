@@ -1,4 +1,4 @@
-name: cf-admin-ui
+name: cf-webadmin
 summary: Admin UI for CF
 maintainer: Whit Morriss <whit.morriss@canonical.com>
 description: |

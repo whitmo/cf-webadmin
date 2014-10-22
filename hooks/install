@@ -16,12 +16,13 @@ pkgs = ['git-core',
         'libpq-dev']
 
 here = path(__file__).parent.abspath()
+home = path('/home/ubuntu')
 
 
 logger = logging.getLogger(__name__)
 
 
-def shell(cmd, boilerplate=". /home/ubuntu/.boilerplate &&"):
+def shell(cmd, boilerplate=". %s/.boilerplate &&" % home):
     cmd = "%s %s" % (boilerplate, cmd)
     log(cmd)
     return subprocess.check_call(cmd, shell=True)
@@ -39,13 +40,12 @@ def install(pkgs=pkgs):
     log('Installing cf-webadmin')
     fetch.apt_install(fetch.filter_installed_packages(pkgs))
 
-    home = path('~/').expanduser()
     if not (home / '.rbenv').exists():
-        shell('git clone https://github.com/sstephenson/rbenv.git ~/.rbenv', '')
-        shell('git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build', '')
+        shell('git clone https://github.com/sstephenson/rbenv.git %s' % (home / '.rbenv'), '')
+        shell('git clone https://github.com/sstephenson/ruby-build.git %s/.rbenv/plugins/ruby-build' % home, '')
 
     boilerplate = home / '.boilerplate'
-    append_line_once('export PATH="$HOME/.rbenv/bin:$PATH"', boilerplate)
+    append_line_once('export PATH="%s/.rbenv/bin:$PATH"' % home, boilerplate)
     append_line_once('eval "$(rbenv init -)"', boilerplate)
 
     shell('rbenv install -s 1.9.3-p484')

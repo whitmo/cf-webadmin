@@ -1,0 +1,24 @@
+name: cf-admin-ui
+summary: Admin UI for CF
+maintainer: Whit Morriss <whit.morriss@canonical.com>
+description: |
+  An Admin UI for CF
+categories:
+  - cloudfoundry
+  - paas
+  - rails
+subordinate: false
+provides:
+  admin-web:
+    interface: http
+requires:
+  nats:
+    interface: nats
+  cc:
+    interface: http
+  cc:
+    interface: db
+  uaa:
+    interface: db
+  uaa:
+    interface: http

@@ -1,0 +1,55 @@
+#!/usr/bin/python
+
+import setup
+setup.pre_install()
+
+from charmhelpers.core import hookenv
+from charmhelpers import fetch
+from path import path
+import subprocess
+
+pkgs = ['git-core',
+        'build-essential',
+        'libssl-dev',
+        'libsqlite3-dev',
+        'openssl',
+        'libpq-dev']
+
+
+def shell(cmd, boilerplate=". ~/.profile"):
+    cmd = "%s && %s" % (boilerplate, cmd)
+    return subprocess.check_call(cmd, shell=True)
+
+
+def install(pkgs=pkgs):
+    hookenv.log('Installing cf-admin-ui')
+    fetch.apt_install(fetch.filter_installed_packages(pkgs))
+
+    home = path('~/').expanduser()
+    if not (home / '.rbenv').exists():
+        shell('git clone https://github.com/sstephenson/rbenv.git ~/.rbenv', '')
+        shell('git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build', '')
+
+    profile = home / '.profile'
+    if not profile.exists():
+        profile.append_text('export PATH="$HOME/.rbenv/bin:$PATH"')
+        profile.append_text('eval "$(rbenv init -)"')
+
+    shell('rbenv install -s 1.9.3-p484')
+    shell('rbenv global 1.9.3-p484')
+
+    shell('gem install bundler --no-rdoc --no-ri')
+    shell('rbenv rehash')
+
+    opt = path('/opt').mkdir_p()
+
+    cmd = 'git clone https://github.com/cloudfoundry-incubator/admin-ui.git'
+    with opt:
+        shell(cmd)
+
+    with opt / 'admin-ui':
+        shell('bundle install')
+
+
+if __name__ == "__main__":
+    install()

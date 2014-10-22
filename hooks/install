@@ -36,6 +36,20 @@ def append_line_once(line, fp):
         fp.write_text(line + '\n', append=True)
 
 
+def install_ruby_repo(name, repo, dest):
+    cmd = 'git clone %s %s' % (repo, dest)
+    if dest.exists():
+        with dest:
+            shell('git pull --rebase')
+    else:
+        shell(cmd)
+
+    with dest:
+        shell('chown ubuntu:ubuntu -R ./')
+        script = here / 'bundle.sh'
+        shell('sudo -u ubuntu -s %s' % script, '')
+
+
 def install(pkgs=pkgs):
     log('Installing cf-webadmin')
     fetch.apt_install(fetch.filter_installed_packages(pkgs))
@@ -56,21 +70,9 @@ def install(pkgs=pkgs):
 
     opt = path('/opt').mkdir_p()
 
-    cmd = 'git clone https://github.com/cloudfoundry-incubator/admin-ui.git'
+    install_ruby_repo('https://github.com/cloudfoundry-incubator/admin-ui.git', opt / 'admin-ui')
+    install_ruby_repo('https://github.com/cloudfoundry/cf-uaac.git', opt / 'uaac')
 
-    repo = opt / 'admin-ui'
-
-    if repo.exists():
-        with repo:
-            shell('git pull --rebase')
-    else:
-        with opt:
-            shell(cmd)
-
-    with opt / 'admin-ui':
-        shell('chown ubuntu:ubuntu -R ./')
-        script = here / 'bundle.sh'
-        shell('sudo -u ubuntu -s %s' % script, '')
 
 
 if __name__ == "__main__":

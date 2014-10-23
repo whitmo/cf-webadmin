@@ -20,9 +20,10 @@ def manage():
                 helpers.HttpRelation()
             ],
             'required_data': [
-                # data (contexts) required to start the service
-                # e.g.: helpers.RequiredConfig('domain', 'auth_key'),
-                #       helpers.MysqlRelation(),
+                MysqlRelation(),
+                UAARelation(),
+                CloudControllerDBRelation(),
+                # UAADBRelation(),
             ],
             'data_ready': [
                 actions.render_webadmin_config,

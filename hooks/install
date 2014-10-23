@@ -36,7 +36,7 @@ def append_line_once(line, fp):
         fp.write_text(line + '\n', append=True)
 
 
-def install_ruby_repo(name, repo, dest):
+def install_ruby_repo(repo, dest):
     cmd = 'git clone %s %s' % (repo, dest)
     if dest.exists():
         with dest:

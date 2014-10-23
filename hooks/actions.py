@@ -1,4 +1,3 @@
-from charmhelpers.core import hookenv
 from charmhelpers.core import host
 from cloudfoundry import contexts
 from path import path
@@ -7,10 +6,6 @@ from subprocess import call
 import utils
 from utils import shell
 from utils import home
-
-
-def log_start(service_name):
-    hookenv.log('cf-webadmin starting')
 
 
 def setup_uaac_client(service_name):
@@ -49,6 +44,7 @@ def render_webadmin_config(service_name,
     orchctx = contexts.OrchestratorContext()
     dbctx = contexts.MysqlRelation()
     ccdbctx = contexts.CloudControllerDBRelation()
+    natsctx = contexts.NatsRelation()
     uaadbctx = None  # XXX
     template = yaml.safe_load(source.text())
 
@@ -56,6 +52,7 @@ def render_webadmin_config(service_name,
     ui_secret = secretctx['ui_secret']
     ccdb_uri = ccdbctx[ccdbctx.name][0]['dsn']  # ccdbctx.get('dsn', unit=0) would be nice
     db_uri = dbctx[dbctx.name][0]['dsn']
+    nats_uri = 'nats://{user}:{password}@{address}:{port}'.format(**natsctx[natsctx.name][0])
     uaadb_uri = ''  # XXX
 
     template['uaa_client']['secret'] = ui_secret
@@ -63,5 +60,6 @@ def render_webadmin_config(service_name,
     template['ccdb_uri'] = ccdb_uri
     template['db_uri'] = db_uri
     template['uaadb_uri'] = uaadb_uri
+    template['mbus'] = nats_uri
 
     dest.write_text(yaml.safe_dump(template))

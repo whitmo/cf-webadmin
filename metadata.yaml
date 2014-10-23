@@ -12,13 +12,13 @@ provides:
   admin-web:
     interface: http
 requires:
+  db:
+    interface: mysql
+  orchestrator:
+    interface: orchestrator
+  uaa:
+    interface: http
   nats:
     interface: nats
-  cc:
-    interface: http
-  cc:
-    interface: db
-  uaa:
-    interface: db
-  uaa:
-    interface: http
+  cc-db:
+    interface: controller-db

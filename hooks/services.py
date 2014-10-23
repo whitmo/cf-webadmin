@@ -17,20 +17,21 @@ def manage():
             'service': 'cf-webadmin',
             'ports': [],  # ports to after start
             'provided_data': [
-                helpers.HttpRelation()
+                #helpers.HttpRelation()
             ],
             'required_data': [
                 MysqlRelation(),
+                NatsRelation(),
                 UAARelation(),
                 CloudControllerDBRelation(),
                 # UAADBRelation(),
             ],
             'data_ready': [
+                actions.setup_uaac_client,
                 actions.render_webadmin_config,
                 helpers.render_template(
                     source='upstart.conf',
-                    target='/etc/init.d/cf-webadmin'),
-                actions.log_start,
+                    target='/etc/init/cf-webadmin.conf'),
             ],
         },
     ])

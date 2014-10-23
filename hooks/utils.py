@@ -1,5 +1,7 @@
 from charmhelpers.core.hookenv import log
 import subprocess
+from path import path
+
 
 home = path('/home/ubuntu')
 secrets_file = path('/etc/admin_ui_secrets')

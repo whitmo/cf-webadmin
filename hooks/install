@@ -55,8 +55,10 @@ def install(pkgs=pkgs):
     fetch.apt_install(fetch.filter_installed_packages(pkgs))
 
     if not (home / '.rbenv').exists():
-        shell('git clone https://github.com/sstephenson/rbenv.git %s' % (home / '.rbenv'), '')
-        shell('git clone https://github.com/sstephenson/ruby-build.git %s/.rbenv/plugins/ruby-build' % home, '')
+        rc = 'git clone https://github.com/sstephenson/rbenv.git %s' % (home / '.rbenv')
+        shell(rc, '')
+        rp = 'git clone https://github.com/sstephenson/ruby-build.git %s/.rbenv/plugins/ruby-build' % home
+        shell(rp, '')
 
     boilerplate = home / '.boilerplate'
     append_line_once('export PATH="%s/.rbenv/bin:$PATH"' % home, boilerplate)
@@ -70,8 +72,11 @@ def install(pkgs=pkgs):
 
     opt = path('/opt').mkdir_p()
 
-    install_ruby_repo('https://github.com/cloudfoundry-incubator/admin-ui.git', opt / 'admin-ui')
-    install_ruby_repo('https://github.com/cloudfoundry/cf-uaac.git', opt / 'uaac')
+    install_ruby_repo('https://github.com/cloudfoundry-incubator/admin-ui.git',
+                      opt / 'admin-ui')
+
+    install_ruby_repo('https://github.com/cloudfoundry/cf-uaac.git',
+                      opt / 'uaac')
 
 
 

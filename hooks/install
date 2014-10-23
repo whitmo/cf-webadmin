@@ -5,7 +5,9 @@ setup.pre_install()
 from charmhelpers.core.hookenv import log
 from charmhelpers import fetch
 from path import path
-import subprocess
+from .utils import home
+from .utils import shell
+
 import logging
 
 pkgs = ['git-core',
@@ -16,16 +18,11 @@ pkgs = ['git-core',
         'libpq-dev']
 
 here = path(__file__).parent.abspath()
-home = path('/home/ubuntu')
-
 
 logger = logging.getLogger(__name__)
 
 
-def shell(cmd, boilerplate=". %s/.boilerplate &&" % home):
-    cmd = "%s %s" % (boilerplate, cmd)
-    log(cmd)
-    return subprocess.check_call(cmd, shell=True)
+
 
 
 def append_line_once(line, fp):

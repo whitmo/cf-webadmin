@@ -7,6 +7,7 @@ from cloudfoundry.contexts import NatsRelation
 from cloudfoundry.contexts import UAARelation
 from cloudfoundry.contexts import CloudControllerRelation
 from cloudfoundry.contexts import CloudControllerDBRelation
+from cloudfoundry.contexts import OrchestratorRelation
 
 import actions
 
@@ -15,11 +16,12 @@ def manage():
     manager = ServiceManager([
         {
             'service': 'cf-webadmin',
-            'ports': [],  # ports to after start
+            'ports': [8070],  # ports to after start
             'provided_data': [
                 #helpers.HttpRelation()
             ],
             'required_data': [
+                OrchestratorRelation(),
                 MysqlRelation(),
                 NatsRelation(),
                 UAARelation(),

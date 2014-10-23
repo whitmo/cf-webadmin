@@ -5,8 +5,8 @@ setup.pre_install()
 from charmhelpers.core.hookenv import log
 from charmhelpers import fetch
 from path import path
-from .utils import home
-from .utils import shell
+from utils import home
+from utils import shell
 
 import logging
 
@@ -20,17 +20,6 @@ pkgs = ['git-core',
 here = path(__file__).parent.abspath()
 
 logger = logging.getLogger(__name__)
-
-
-
-
-
-def append_line_once(line, fp):
-    if not fp.exists():
-        fp.touch()
-
-    if line not in fp.lines():
-        fp.write_text(line + '\n', append=True)
 
 
 def install_ruby_repo(repo, dest):
@@ -58,8 +47,10 @@ def install(pkgs=pkgs):
         shell(rp, '')
 
     boilerplate = home / '.boilerplate'
-    append_line_once('export PATH="%s/.rbenv/bin:$PATH"' % home, boilerplate)
-    append_line_once('eval "$(rbenv init -)"', boilerplate)
+    bp_txt = "\n".join(('export PATH="/opt/uaac/bin:%s/.rbenv/bin:$PATH"' % home,
+                        'eval "$(rbenv init -)"'))
+
+    boilerplate.write_text(bp_txt)
 
     shell('rbenv install -s 1.9.3-p484')
     shell('rbenv global 1.9.3-p484')
@@ -74,7 +65,6 @@ def install(pkgs=pkgs):
 
     install_ruby_repo('https://github.com/cloudfoundry/cf-uaac.git',
                       opt / 'uaac')
-
 
 
 if __name__ == "__main__":

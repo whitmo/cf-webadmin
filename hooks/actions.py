@@ -10,7 +10,7 @@ from utils import home
 
 def setup_uaac_client(service_name):
     uaactx = contexts.UAARelation()
-    orchctx = contexts.OrchestratorContext()
+    orchctx = contexts.OrchestratorRelation()
     secretctx = contexts.StoredContext(utils.secrets_file, {
         'ui_secret': host.pwgen(20),
     })
@@ -19,14 +19,14 @@ def setup_uaac_client(service_name):
     ui_secret = secretctx['ui_secret']
 
     shell("uaac target http://uaa.%s" % domain)
-    shell("uaac token client get -s %s" % uaa_secret)
-    client_needs_setup = bool(call(". %s/.boilerplate && uaac client get admin_ui_client" % home))
+    shell("uaac token client get admin -s %s" % uaa_secret)
+    client_needs_setup = bool(call(". %s/.boilerplate && uaac client get admin_ui_client" % home, shell=True))
     if client_needs_setup:
         authorities = yaml.safe_load(shell('uaac client get admin'))['authorities']
         if 'scim.write' not in authorities:
             authorities += ' scim.write'
             shell('uaac client update admin --authorities "%s"' % authorities)
-            shell('uaac token client get admin -s admin-secret')
+            shell("uaac token client get admin -s %s" % uaa_secret)
         shell('uaac group add admin_ui.admin')
         shell('uaac member add admin_ui.admin admin')
         shell('uaac client add admin_ui_client'
@@ -41,7 +41,7 @@ def render_webadmin_config(service_name,
                            source=path("/opt/admin-ui/config/default.yml"),
                            dest=path('/etc/cf-webadmin.yml')):
     secretctx = contexts.StoredContext(utils.secrets_file, {})
-    orchctx = contexts.OrchestratorContext()
+    orchctx = contexts.OrchestratorRelation()
     dbctx = contexts.MysqlRelation()
     ccdbctx = contexts.CloudControllerDBRelation()
     natsctx = contexts.NatsRelation()

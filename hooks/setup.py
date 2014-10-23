@@ -3,6 +3,9 @@ def pre_install():
     Do any setup required before the install hook.
     """
     install_charmhelpers()
+    cflib = 'bzr+bzr+ssh://bazaar.launchpad.net/~cf-charmers/charms/trusty/cloudfoundry/trunk#egg=cloudfoundry'
+    subprocess.check_call(['pip', 'install', '-e', cflib])
+    subprocess.check_call(['pip', 'install', 'path.py'])
 
 
 def install_charmhelpers():
@@ -14,4 +17,4 @@ def install_charmhelpers():
     except ImportError:
         import subprocess
         subprocess.check_call(['apt-get', 'install', '-y', 'python-pip'])
-        subprocess.check_call(['pip', 'install', 'charmhelpers', 'path.py'])
+        subprocess.check_call(['pip', 'install', 'charmhelpers'])

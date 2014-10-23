@@ -2,6 +2,11 @@
 
 from charmhelpers.core.services.base import ServiceManager
 from charmhelpers.core.services import helpers
+from cloudfoundry.contexts import MysqlRelation
+from cloudfoundry.contexts import NatsRelation
+from cloudfoundry.contexts import UAARelation
+from cloudfoundry.contexts import CloudControllerRelation
+from cloudfoundry.contexts import CloudControllerDBRelation
 
 import actions
 

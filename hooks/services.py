@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from charmhelpers.core import hookenv
 from charmhelpers.core.services.base import ServiceManager
 from charmhelpers.core.services import helpers
 from cloudfoundry.contexts import MysqlRelation
@@ -27,6 +28,7 @@ def manage():
                 UAARelation(),
                 CloudControllerDBRelation(),
                 # UAADBRelation(),
+                {'charm_dir': hookenv.charm_dir()},
             ],
             'data_ready': [
                 actions.setup_uaac_client,

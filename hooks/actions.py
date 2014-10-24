@@ -42,18 +42,18 @@ def render_webadmin_config(service_name,
                            dest=path('/etc/cf-webadmin.yml')):
     secretctx = contexts.StoredContext(utils.secrets_file, {})
     orchctx = contexts.OrchestratorRelation()
-    dbctx = contexts.MysqlRelation()
     ccdbctx = contexts.CloudControllerDBRelation()
+    dbctx = contexts.MysqlRelation()
+    uaadbctx = contexts.UAADBRelation()
     natsctx = contexts.NatsRelation()
-    uaadbctx = None  # XXX
     template = yaml.safe_load(source.text())
 
-    domain = orchctx[orchctx.name][0]['domain']
     ui_secret = secretctx['ui_secret']
-    ccdb_uri = ccdbctx[ccdbctx.name][0]['dsn']  # ccdbctx.get('dsn', unit=0) would be nice
-    db_uri = dbctx[dbctx.name][0]['dsn']
+    domain = orchctx.get_first('domain')
+    ccdb_uri = ccdbctx.get_first('dsn')
+    db_uri = dbctx.get_first('dsn')
+    uaadb_uri = uaadbctx.get_first('dsn')
     nats_uri = 'nats://{user}:{password}@{address}:{port}'.format(**natsctx[natsctx.name][0])
-    uaadb_uri = ''  # XXX
 
     template['uaa_client']['secret'] = ui_secret
     template['cloud_controller_uri'] = 'http://api.%s' % domain

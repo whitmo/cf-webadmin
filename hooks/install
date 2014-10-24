@@ -15,7 +15,8 @@ pkgs = ['git-core',
         'libssl-dev',
         'libsqlite3-dev',
         'openssl',
-        'libpq-dev']
+        'libpq-dev',
+        'libmysqlclient-dev']
 
 here = path(__file__).parent.abspath()
 
@@ -56,6 +57,7 @@ def install(pkgs=pkgs):
     shell('rbenv global 1.9.3-p484')
 
     shell('gem install bundler --no-rdoc --no-ri')
+    shell('gem install mysql2 --no-rdoc --no-ri')
     shell('rbenv rehash')
 
     opt = path('/opt').mkdir_p()

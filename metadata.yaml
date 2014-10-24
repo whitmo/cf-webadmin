@@ -17,7 +17,9 @@ requires:
   orchestrator:
     interface: orchestrator
   uaa:
-    interface: http
+    interface: uaa
+  uaa-db:
+    interface: uaa-db
   nats:
     interface: nats
   cc-db:

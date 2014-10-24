@@ -10,4 +10,8 @@ secrets_file = path('/etc/admin_ui_secrets')
 def shell(cmd, boilerplate=". %s/.boilerplate &&" % home):
     cmd = "%s %s" % (boilerplate, cmd)
     log(cmd)
-    return subprocess.check_output(cmd, shell=True)
+    try:
+        return subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print e.output
+        raise

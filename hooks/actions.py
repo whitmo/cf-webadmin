@@ -9,7 +9,7 @@ import utils
 import yaml
 
 
-uaac_path = 'export PATH="/opt/uaac/bin"' % home
+uaac_path = 'export PATH="/opt/uaac/bin"'
 shell = partial(shell, boilerplate=uaac_path)
 
 

@@ -37,6 +37,10 @@ def install_ruby_repo(repo, dest):
         shell('sudo -u ubuntu -s %s' % script, '')
 
 
+repo = "https://github.com/owaism/admin-ui.git"
+# 'https://github.com/cloudfoundry-incubator/admin-ui.git'
+
+
 def install(pkgs=pkgs):
     log('Installing cf-webadmin')
     fetch.apt_install(fetch.filter_installed_packages(pkgs))
@@ -62,7 +66,7 @@ def install(pkgs=pkgs):
 
     opt = path('/opt').mkdir_p()
 
-    install_ruby_repo('https://github.com/cloudfoundry-incubator/admin-ui.git',
+    install_ruby_repo(repo,
                       opt / 'admin-ui')
 
     install_ruby_repo('https://github.com/cloudfoundry/cf-uaac.git',

@@ -35,8 +35,7 @@ def install_ruby_repo(repo, dest):
 
     with dest:
         shell('chown ubuntu:ubuntu -R ./')
-        script = here / 'bundle.sh'
-        shell('sudo -u ubuntu -s %s' % script)
+        shell('sudo -u ubuntu -s bundle install')
 
 
 repo = "https://github.com/owaism/admin-ui.git"

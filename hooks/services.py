@@ -6,6 +6,7 @@ from charmhelpers.core.services import helpers
 from cloudfoundry.contexts import MysqlRelation
 from cloudfoundry.contexts import NatsRelation
 from cloudfoundry.contexts import UAARelation
+from cloudfoundry.contexts import UAADBRelation
 from cloudfoundry.contexts import CloudControllerRelation
 from cloudfoundry.contexts import CloudControllerDBRelation
 from cloudfoundry.contexts import OrchestratorRelation
@@ -27,7 +28,7 @@ def manage():
                 NatsRelation(),
                 UAARelation(),
                 CloudControllerDBRelation(),
-                # UAADBRelation(),
+                UAADBRelation(),
                 {'charm_dir': hookenv.charm_dir()},
             ],
             'data_ready': [

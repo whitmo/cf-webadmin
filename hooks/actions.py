@@ -1,11 +1,16 @@
 from charmhelpers.core import host
 from cloudfoundry import contexts
+from functools import partial
 from path import path
-import yaml
 from subprocess import call
-import utils
-from utils import shell
 from utils import home
+from utils import shell
+import utils
+import yaml
+
+
+uaac_path = 'export PATH="/opt/uaac/bin"' % home
+shell = partial(shell, boilerplate=uaac_path)
 
 
 def setup_uaac_client(service_name):
@@ -20,7 +25,7 @@ def setup_uaac_client(service_name):
 
     shell("uaac target http://uaa.%s" % domain)
     shell("uaac token client get admin -s %s" % uaa_secret)
-    client_needs_setup = bool(call(". %s/.boilerplate && uaac client get admin_ui_client" % home, shell=True))
+    client_needs_setup = bool(call("%s && uaac client get admin_ui_client" % uacc_path, shell=True))
     if client_needs_setup:
         authorities = yaml.safe_load(shell('uaac client get admin'))['authorities']
         if 'scim.write' not in authorities:

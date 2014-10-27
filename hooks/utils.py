@@ -7,8 +7,8 @@ home = path('/home/ubuntu')
 secrets_file = path('/etc/admin_ui_secrets')
 
 
-def shell(cmd, boilerplate=". %s/.boilerplate &&" % home):
-    cmd = "%s %s" % (boilerplate, cmd)
+def shell(cmd, boilerplate=""):
+    cmd = " && ".join([x for x in (boilerplate, cmd) if x])
     log(cmd)
     try:
         return subprocess.check_output(cmd, shell=True)

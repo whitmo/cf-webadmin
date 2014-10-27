@@ -16,7 +16,9 @@ pkgs = ['git-core',
         'libsqlite3-dev',
         'openssl',
         'libpq-dev',
-        'libmysqlclient-dev']
+        'libmysqlclient-dev',
+        'ruby1.9.3',
+        'bundler']
 
 here = path(__file__).parent.abspath()
 
@@ -34,7 +36,7 @@ def install_ruby_repo(repo, dest):
     with dest:
         shell('chown ubuntu:ubuntu -R ./')
         script = here / 'bundle.sh'
-        shell('sudo -u ubuntu -s %s' % script, '')
+        shell('sudo -u ubuntu -s %s' % script)
 
 
 repo = "https://github.com/owaism/admin-ui.git"
@@ -45,29 +47,12 @@ def install(pkgs=pkgs):
     log('Installing cf-webadmin')
     fetch.apt_install(fetch.filter_installed_packages(pkgs))
 
-    if not (home / '.rbenv').exists():
-        rc = 'git clone https://github.com/sstephenson/rbenv.git %s' % (home / '.rbenv')
-        shell(rc, '')
-        rp = 'git clone https://github.com/sstephenson/ruby-build.git %s/.rbenv/plugins/ruby-build' % home
-        shell(rp, '')
-
-    boilerplate = home / '.boilerplate'
-    bp_txt = "\n".join(('export PATH="/opt/uaac/bin:%s/.rbenv/bin:$PATH"' % home,
-                        'eval "$(rbenv init -)"'))
-
-    boilerplate.write_text(bp_txt)
-
-    shell('rbenv install -s 1.9.3-p484')
-    shell('rbenv global 1.9.3-p484')
-
     shell('gem install bundler --no-rdoc --no-ri')
     shell('gem install mysql2 --no-rdoc --no-ri')
-    shell('rbenv rehash')
 
     opt = path('/opt').mkdir_p()
 
-    install_ruby_repo(repo,
-                      opt / 'admin-ui')
+    install_ruby_repo(repo, opt / 'admin-ui')
 
     install_ruby_repo('https://github.com/cloudfoundry/cf-uaac.git',
                       opt / 'uaac')

@@ -25,7 +25,7 @@ def setup_uaac_client(service_name):
 
     shell("uaac target http://uaa.%s" % domain)
     shell("uaac token client get admin -s %s" % uaa_secret)
-    client_needs_setup = bool(call("%s && uaac client get admin_ui_client" % uacc_path, shell=True))
+    client_needs_setup = bool(call("%s && uaac client get admin_ui_client" % uaacc_path, shell=True))
     if client_needs_setup:
         authorities = yaml.safe_load(shell('uaac client get admin'))['authorities']
         if 'scim.write' not in authorities:

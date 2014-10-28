@@ -37,7 +37,7 @@ def setup_uaac_client(service_name):
 
     uaac("token client get admin -s %s" % uaa_secret)
 
-    client_needs_setup = bool(call("%s client get admin_ui_client" %ucmd,
+    client_needs_setup = bool(call("%s client get admin_ui_client" % ucmd,
                                    shell=True, env=uaac_env))
     if client_needs_setup:
         authorities = yaml.safe_load(uaac('client get admin'))['authorities']

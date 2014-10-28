@@ -2,13 +2,11 @@
 import setup
 setup.pre_install()
 
-from charmhelpers.core.hookenv import log
 from charmhelpers import fetch
+from charmhelpers.core.hookenv import config
+from charmhelpers.core.hookenv import log
 from path import path
-from utils import home
 from utils import shell
-
-import logging
 
 pkgs = ['git-core',
         'build-essential',
@@ -23,9 +21,9 @@ pkgs = ['git-core',
 here = path(__file__).parent.abspath()
 charm = here.parent
 
-logger = logging.getLogger(__name__)
-
 templates = charm / 'templates'
+uaac_repo = 'https://github.com/cloudfoundry/cf-uaac.git'
+
 
 def install_ruby_repo(repo, dest, overwrites=None):
     cmd = 'git clone %s %s' % (repo, dest)
@@ -44,10 +42,6 @@ def install_ruby_repo(repo, dest, overwrites=None):
         shell('sudo -u ubuntu -s bundle install')
 
 
-repo = "https://github.com/owaism/admin-ui.git"
-# 'https://github.com/cloudfoundry-incubator/admin-ui.git'
-
-
 def install(pkgs=pkgs):
     log('Installing cf-webadmin')
     fetch.apt_install(fetch.filter_installed_packages(pkgs))
@@ -57,10 +51,11 @@ def install(pkgs=pkgs):
 
     opt = path('/opt').mkdir_p()
 
-    install_ruby_repo(repo, opt / 'admin-ui', (templates / 'Gemfile.lock', ))
+    cfg = config()
+    install_ruby_repo(cfg['repository'],
+                      opt / 'admin-ui', (templates / 'Gemfile.lock', ))
 
-    install_ruby_repo('https://github.com/cloudfoundry/cf-uaac.git',
-                      opt / 'uaac')
+    install_ruby_repo(uaac_repo, opt / 'uaac')
 
 
 if __name__ == "__main__":

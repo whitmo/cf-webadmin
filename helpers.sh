@@ -1,6 +1,6 @@
-function cfwa-relate(){
+function do-relate(){
     for i in nats uaa:uaa cc uaa:uaa-db mysql cloudfoundry;
     do
-        juju add-relation cf-webadmin $i;
+        juju add-relation $1 $i;
     done
 }

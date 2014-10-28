@@ -1,12 +1,16 @@
 from charmhelpers.core import host
+from charmhelpers.core.hookenv import log
 from cloudfoundry import contexts
 from functools import partial
 from path import path
+from subprocess import CalledProcessError
 from subprocess import call
+from time import sleep
 from utils import shell
+import os
 import utils
 import yaml
-import os
+
 
 currpath = os.environ['PATH']
 uaac_env = dict(PATH='/opt/uaac/bin:%s' % currpath)
@@ -24,13 +28,19 @@ def setup_uaac_client(service_name):
     uaa_secret = uaactx.get_first('admin_client_secret')
     ui_secret = secretctx['ui_secret']
 
-    uaac("target http://uaa.%s" % domain)
+    try:
+        uaac("target http://uaa.%s" % domain)
+    except CalledProcessError:
+        log('FAILED UAA Target, try again.')
+        sleep(0.5)
+        uaac("target http://uaa.%s" % domain)
+
     uaac("token client get admin -s %s" % uaa_secret)
 
     client_needs_setup = bool(call("%s client get admin_ui_client" %ucmd,
                                    shell=True, env=uaac_env))
     if client_needs_setup:
-        authorities = yaml.safe_load(uaac('uaac client get admin'))['authorities']
+        authorities = yaml.safe_load(uaac('client get admin'))['authorities']
         if 'scim.write' not in authorities:
             authorities += ' scim.write'
             uaac('client update admin --authorities "%s"' % authorities)

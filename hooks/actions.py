@@ -3,14 +3,15 @@ from cloudfoundry import contexts
 from functools import partial
 from path import path
 from subprocess import call
-from utils import home
 from utils import shell
 import utils
 import yaml
+import os
 
-
-uaac_path = 'export PATH="/opt/uaac/bin:$PATH"'
-shell = partial(shell, boilerplate=uaac_path)
+currpath = os.environ['PATH']
+uaac_env = dict(PATH='/opt/uaac/bin:%s' % currpath)
+ucmd = 'sudo -u ubuntu -s /opt/uaac/bin/uaac'
+uaac = partial(shell, prefix=ucmd)
 
 
 def setup_uaac_client(service_name):
@@ -19,27 +20,31 @@ def setup_uaac_client(service_name):
     secretctx = contexts.StoredContext(utils.secrets_file, {
         'ui_secret': host.pwgen(20),
     })
-    domain = orchctx[orchctx.name][0]['domain']
-    uaa_secret = uaactx[uaactx.name][0]['admin_client_secret']
+    domain = orchctx.get_first('domain')
+    uaa_secret = uaactx.get_first('admin_client_secret')
     ui_secret = secretctx['ui_secret']
 
-    shell("uaac target http://uaa.%s" % domain)
-    shell("uaac token client get admin -s %s" % uaa_secret)
-    client_needs_setup = bool(call("%s && uaac client get admin_ui_client" % uaac_path, shell=True))
+    uaac("target http://uaa.%s" % domain)
+    uaac("token client get admin -s %s" % uaa_secret)
+
+    client_needs_setup = bool(call("%s client get admin_ui_client" %ucmd,
+                                   shell=True, env=uaac_env))
     if client_needs_setup:
-        authorities = yaml.safe_load(shell('uaac client get admin'))['authorities']
+        authorities = yaml.safe_load(uaac('uaac client get admin'))['authorities']
         if 'scim.write' not in authorities:
             authorities += ' scim.write'
-            shell('uaac client update admin --authorities "%s"' % authorities)
-            shell("uaac token client get admin -s %s" % uaa_secret)
-        shell('uaac group add admin_ui.admin')
-        shell('uaac member add admin_ui.admin admin')
-        shell('uaac client add admin_ui_client'
-              ' --authorities cloud_controller.admin,cloud_controller.read,cloud_controller.write,openid,scim.read'
-              ' --authorized_grant_types authorization_code,client_credentials,refresh_token'
-              ' --autoapprove true'
-              ' --scope admin_ui.admin,admin_ui.user,openid'
-              ' -s %s' % ui_secret)
+            uaac('client update admin --authorities "%s"' % authorities)
+            uaac("token client get admin -s %s" % uaa_secret)
+        uaac('group add admin_ui.admin')
+        uaac('member add admin_ui.admin admin')
+        uaac('client add admin_ui_client'
+             ' --authorities cloud_controller.admin,cloud_controller.read,'
+             'cloud_controller.write,openid,scim.read'
+             ' --authorized_grant_types authorization_code,'
+             'client_credentials,refresh_token'
+             ' --autoapprove true'
+             ' --scope admin_ui.admin,admin_ui.user,openid'
+             ' -s %s' % ui_secret)
 
 
 def render_webadmin_config(service_name,

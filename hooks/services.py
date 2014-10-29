@@ -13,13 +13,31 @@ from cloudfoundry.contexts import UAARelation
 import actions
 
 
+class HttpRelation(helpers.HttpRelation):
+    """
+    Temporary subclass to get around hard-coded port.
+    """
+    port = 80
+
+    def __init__(self, name=None, additional_required_keys=None, port=None):
+        super(HttpRelation, self).__init__(name, additional_required_keys)
+        if port is not None:
+            self.port = port
+
+    def provide_data(self):
+        return {
+            'host': hookenv.unit_get('private-address'),
+            'port': self.port,
+        }
+
+
 def manage():
     manager = ServiceManager([
         {
             'service': 'cf-webadmin',
-            'ports': [8070],  # ports to after start
+            'ports': [8070],  # ports to open after start
             'provided_data': [
-                #helpers.HttpRelation()
+                HttpRelation(port=8070)
             ],
             'required_data': [
                 OrchestratorRelation(),
